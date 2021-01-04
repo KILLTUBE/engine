@@ -1,4 +1,4 @@
-import Algebra from "../src/index.js";
+import Algebra from "../src/ganja/index.js";
 
 function Galculator() {
     // Minimal calculator implementation. Globals for our current algebra, mode, history, variables etc ..  

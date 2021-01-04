@@ -602,11 +602,11 @@
     var excards = examples.map(e=>{
       var card = Object.assign(document.createElement('div'),{className:'card'});
       if (e) {
-        card.style.backgroundImage="url('../images/"+e+".jpg')";
+        card.style.backgroundImage="url('../STUFF/images/"+e+".jpg')";
       }
       card.innerHTML = '<p>'+e.split('_').slice(1).join(' ')+'</p>';
       card.onclick = (x) => {
-        els.sample.src='example_'+e+'.html';
+        els.sample.src='./examples_ganja/example_'+e+'.html';
         document.location.hash = e;
         els.title.innerText = "The CoffeeShop";
         els.titleInput.value = els.descriptionInput.value = "";
@@ -921,7 +921,7 @@
     
   // Premade examples.   
     if (~examples.indexOf(hashurl.split('&')[0])) {
-      els.sample.src = 'example_'+hashurl.split('&')[0]+'.html';
+      els.sample.src = './examples_ganja/example_'+hashurl.split('&')[0]+'.html';
       els.tab1.click();
       document.body.style.display='flex';
       if (hashurl.split('&')[1] == 'fullscreen') {

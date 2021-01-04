@@ -1,0 +1,45 @@
+<script type="module">
+import Algebra from "../src/index.js";
+
+// Create a Clifford Algebra with 6,3 metric for 3D CCGA. ("colored" CGA) 
+Algebra(6,3,()=>{ 
+  
+  // https://link.springer.com/article/10.1007/s00006-014-0442-8
+  
+  // Null Basis
+  var plus = [1e4,1e5,1e6];
+  var min  = [1e7,1e8,1e9];
+  var [eix,eiy,eiz] = plus+min;
+  var [eox,eoy,eoz] = .5*(min-plus);
+  var ei = (eix+eiy+eiz) * (1/3);
+  var eo = eox+eoy+eoz;
+  var pss = 1e123456789;
+  
+  // Some primitives
+  var pointv = [1e1,1e2,1e3,eix,eiy,eiz,eo];
+  var point  = (x,y,z)=>[x,y,z,.5*x**2,.5*y**2,.5*z**2,1]*pointv;
+  var ellipsoidv = [1e1,1e2,1e3,ei,eox,eoy,eoz];
+  var ellipsoid = (h,k,l,a,b,c)=>[h*a**-2,k*b**-2,l*c**-2,.5*(h**2*a**-2+k**2*b**-2+l**2*c**-2-1),a**-2,b**-2,c**-2]*ellipsoidv;
+  var plane = (x,y,z,d)=>x*1e1+y*1e2+z*1e3+d*ei;
+      
+  // for viz
+  var upviz = point(Element.Scalar("x"),Element.Scalar("y"),Element.Scalar("z")).Vector;
+  
+  // Create an ellipsoid, plane and their intersection.
+  var E = ellipsoid(0,0,0,2,3,2);
+  var P = plane(0.9,0.3,0.0,0.0);
+  var e = (E^P).Normalized;
+  
+  var options = {
+    up: upviz,
+    spin: 1,
+    animate: true
+  };
+
+  // Render
+  document.body.appendChild(this.graph([
+    0xff8800, pss*E,
+    0x0088ff, pss*e
+  ], options));
+});
+</script>

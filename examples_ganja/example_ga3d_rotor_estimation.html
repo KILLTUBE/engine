@@ -1,0 +1,43 @@
+<script type="module">
+import Algebra from "../src/index.js";
+
+//** Quite an exotic example. We create a Clifford Algebra over dual vectors (with 3 dual components) **//
+//** and use it to do automatic differentiation and rotor estimation between point clouds.            **//
+//** for info see https://beta.observablehq.com/@enkimute/rotor-estimation-and-ad-in-ga               **//
+
+var solve = Algebra({p:3,over:Algebra({dual:3})}).inline(()=>{
+  // Convenience    
+  var {E,PI,random} = Math, r=()=>random()*2-1;
+  
+  // Pointset A and B.    
+  var A = [...Array(30)].map(x=>(r*1e1 + r*1e2 + r*1e3)),
+      motor = E**( r*1e23 + r*1e13 + r*1e12 ),
+      B = motor>>>A;
+
+  // Our cost function and starting gues.
+  var cost = (G,A,B)=>((E**G>>>A)-B)**2/30, guess = 0e12;
+  guess.e12.e01 = guess.e13.e02 = guess.e23.e03 = 1;
+  
+  // Gradient Descent.
+  for (var i=0; i<100; i++) {
+    var c = cost(guess,A,B);
+    [guess.e12,guess.e13,guess.e23].forEach((g,i)=>g.s -= 0.1*c.s[1+i]);
+  }
+
+  // Return points sets and bivector.
+  return {A,B,G:guess.map(x=>x.s),c:c.s}
+})();
+
+// Now graph it.
+document.body.appendChild(Algebra(3,0,1).inline(solve=>{
+  var pA     = solve.A.map(x=>!(1e0 + x.e1.s*1e1 + x.e2.s*1e2 + x.e3.s*1e3));
+  var pB     = solve.B.map(x=>!(1e0 + x.e1.s*1e1 + x.e2.s*1e2 + x.e3.s*1e3));
+  var guess  = solve.G.slice(4,7)*[1e12,1e13,1e23];
+  var trails = pA.map(pA=>(t)=>Math.E**(t*guess)>>>pA);
+  var camera = Math.E**1e23;
+  return this.graph(()=>{
+    camera.set(Math.E**(Math.sin(performance.now()/5000)*1e13));  
+    return [ 0x000000,...pA, 0xFF0000, ...pB, 0xAA0000FF, guess, ...trails ];
+  },{gl:1,camera,animate:1});
+})(solve));
+</SCRIPT>

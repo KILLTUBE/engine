@@ -1,0 +1,33 @@
+<script type="module">
+import Algebra from "../src/index.js";
+
+// A 3 layer convolutional network with AD and Back-Propagation is trained to learn
+// an 'AND' relationship using 500 epochs of 4 noisy samples.
+// The resulting decision boundary is displayed.
+
+Algebra({dual:12},()=>{
+  var {E} = Math;
+
+  // The initial weights, input and desired output of our network.
+  var input    = [[.35,.20],[0.7,0.55],[0.17,0.8],[0.9,0.3]],                    // input samples.
+      WH       = [[.15+1e01,.20+1e02,.35+1e03],[.25+1e04,.30+1e05,.35+1e06]],    // hidden layer weights and bias
+      WO       = [[.40+1e07,.45+1e08,.60+1e09],[.50+1e010,.55+1e011,.60+1e012]], // output layer weights and bias
+      expected = [[0.01,0.99],[0.99,0.01],[0.01,0.99],[0.01,0.99]];              // desired outputs.
+
+  // The activation function, forward evaluator and error function.
+  var logistic = x=>1/(1+E**-x),
+      forward=(sample)=>(WO*[...(WH*[...sample,1]).map(logistic),1]).map(logistic),
+      error = (sample,expected)=>0.5*(expected-sample)**2;
+
+  // Now train the network.            
+  for (var k=0;k<500;k++) {
+     var update=input.reduce((l,c,i)=>l-2.5*error(forward(c), expected[i]),0); // forward eval, calculate derivatives on error
+     WO = WO+[[...update.slice(7,10)],[...update.slice(10,13)]];               // backpropagate output layer
+     WH = WH+[[...update.slice(1,4)],[...update.slice(4,7)]];                  // backpropagate hidden layer
+  }
+
+  // Display the decision boundary.
+  var canvas = document.body.appendChild(this.graph((x,y)=>forward([x/2+0.5,y/2+0.5])[0].s,{width:64,height:64}));
+  Object.assign(canvas.style,{width:256,height:256})
+});
+</SCRIPT>

@@ -1,0 +1,73 @@
+<script type="module">
+import Algebra from "../src/index.js";
+import pc from "../../playcanvas-engine/build/playcanvas.mjs";
+
+window.pc = pc;
+
+// Create a complex Algebra.
+Algebra(0,1, () => {
+
+    var canvas = document.createElement("canvas");
+    document.body.appendChild(canvas);
+
+    const app = new pc.Application(canvas);
+    
+    // fill the available space at full resolution
+    app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
+    app.setCanvasResolution(pc.RESOLUTION_AUTO);
+    
+    // ensure canvas is resized when window changes size
+    window.addEventListener('resize', () => app.resizeCanvas());
+    
+    // create box entity
+    const box = new pc.Entity('cube');
+    window.box = box;
+    
+    box.addComponent('model', {
+        type: 'box'
+    });
+    var texture = new pc.Texture(app.graphicsDevice, {
+        format: pc.PIXELFORMAT_R5_G6_B5,
+        autoMipmap: false
+    });
+    texture.minFilter = pc.FILTER_LINEAR;
+    texture.magFilter = pc.FILTER_LINEAR;
+    texture.addressU = pc.ADDRESS_CLAMP_TO_EDGE;
+    texture.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
+    var material = new pc.BasicMaterial();
+    material.colorMap = texture;
+    material.update();
+    box.model.material = material;
+    app.root.addChild(box);
+    
+    // create camera entity
+    const camera = new pc.Entity('camera');
+    camera.addComponent('camera', {
+            clearColor: new pc.Color(0.1, 0.1, 0.1)
+    });
+    app.root.addChild(camera);
+    camera.setPosition(0, 0, 3);
+    
+    // create directional light entity
+    const light = new pc.Entity('light');
+    light.addComponent('light');
+    app.root.addChild(light);
+    light.setEulerAngles(45, 0, 0);
+    
+    // rotate the box according to the delta time since the last frame
+    app.on('update', dt => box.rotate(10 * dt, 20 * dt, 30 * dt));
+    
+    app.start();
+
+    var func = (x,y) => Math.sin(x*y*50) * Math.cos(y+x);
+    var canvas = this.graph(func, {
+        grid: true,
+        width: window.innerWidth,
+        height: window.innerHeight
+    });
+    
+    texture.setSource(canvas);
+    
+    document.body.appendChild(canvas);
+});
+</SCRIPT>

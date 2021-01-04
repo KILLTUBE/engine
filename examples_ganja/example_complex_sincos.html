@@ -1,0 +1,14 @@
+<script type="module">
+import Algebra from "../src/index.js";
+document.body.innerHTML = "";
+// Create a complex Algebra.
+Algebra(0,1, () => {
+  var func = (x,y) => Math.sin(x*y*50) * Math.cos(y+x);
+  var canvas = this.graph(func, {
+    grid: true,
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+  document.body.appendChild(canvas);
+});
+</SCRIPT>

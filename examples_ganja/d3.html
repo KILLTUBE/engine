@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	
+<head>
+	<style>
+		body, html {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			background-color: black;
+		}
+	</style>
+</head>
+	<body>
+		<!-- Add a svg shape. Note that the 'target' class is attributed to the circle -->
+		<!--
+		<svg id="dataviz_area" height=200 width=301> 
+		<circle class="target" style="fill: #69b3a2" stroke="black" cx=50 cy=50 r=40></circle>
+		</svg>
+		-->
+		<div id="Area"></div>
+		<!-- Load d3.js -->
+		<script src="https://d3js.org/d3.v4.js"></script>
+
+		<script type="module">
+			import * as app from "./d3_fourier.js";
+			app.start();
+			window.app = app;
+			Object.assign(window, app);
+		</script>
+	</body>
+
+</html>

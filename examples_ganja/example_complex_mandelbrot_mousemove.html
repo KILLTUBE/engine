@@ -1,0 +1,123 @@
+<script type="module">
+import Algebra from "../src/index.js";
+function rainbow(numOfSteps, step) {
+    numOfSteps = numOfSteps || 16;
+    step = step || (Math.random() * 1000) % numOfSteps;
+    // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
+    // Adam Cole, 2011-Sept-14
+    // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+    var r, g, b;
+    var h = step / numOfSteps;
+    var i = ~~(h * 6);
+    var f = h * 6 - i;
+    var q = 1 - f;
+    switch(i % 6){
+        case 0: r = 1; g = f; b = 0; break;
+        case 1: r = q; g = 1; b = 0; break;
+        case 2: r = 0; g = 1; b = f; break;
+        case 3: r = 0; g = q; b = 1; break;
+        case 4: r = f; g = 0; b = 1; break;
+        case 5: r = 1; g = 0; b = q; break;
+    }
+    var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+    return (c);
+}
+window.rainbow = rainbow; // only required for <script type="module">
+document.body.innerHTML = "";
+
+// Create a complex Algebra.
+Algebra(0,1,()=>{
+  var canvas = document.createElement("canvas");
+  var w = window.innerWidth;
+  var h = window.innerHeight;
+  //px / w * 2 - 1, py / h * 2 - 1
+  canvas.width = w;
+  canvas.height = h;
+  
+  var context = canvas.getContext("2d");
+  
+
+  // Convert real component to canvas left/right
+  var X = (real) => (real + 1) * w /  2;
+  // Convert imag component to canvas top/bottom
+  var Y = (imag) => (-imag + 1) * h / 2; // - to flip "top"
+  
+  function complexMoveTo(complex) {
+    var real = complex[0];
+    var imag = complex[1];
+    context.moveTo(X(real), Y(imag));
+  }
+  function complexLineTo(complex) {
+    var real = complex[0];
+    var imag = complex[1];
+    context.lineTo(X(real), Y(imag));
+  }
+  function complexCircle(complex) {
+    var real = complex[0];
+    var imag = complex[1];
+    context.beginPath();
+    context.arc(X(real), Y(imag), 5/*radius*/, 0, 2 * Math.PI);
+    context.strokeStyle = rainbow();
+    context.lineWidth = 1;
+    context.stroke();
+  }
+  var Complex = (real, imag) => real + imag * 1e1;
+  
+
+  
+  canvas.onmousemove = e => {
+      // offsetX is left/right
+      // offsetY is top/bottom (has to be negated to be like math axis)
+      
+      var real =   (e.offsetX / w) * 2 - 1 ;
+      var imag = -((e.offsetY / h) * 2 - 1);
+      
+    if (0) {
+      console.log(
+        "real", real.toFixed(2),
+        "imag", imag.toFixed(2)
+      );
+    }
+    var center = Complex(0, 0);
+    var start = Complex(real, imag);
+    //console.log("start", start)
+    
+    var z = 0e1;
+    var c = real + imag * 1e1;
+    var n = 20;
+    
+    //complexCircle(center);
+    //complexCircle(start);
+    complexCircle(start);
+    //complexCircle(start**2);
+    
+    if (1) {
+      context.beginPath();
+      complexMoveTo(start);
+      for (var i=0; i<n; i++) {
+        z = z ** 2 + c;
+        complexLineTo(z);
+      }
+      context.strokeStyle = rainbow();
+      context.lineWidth = 1;
+      context.stroke();
+    }
+    
+    canvas.canvas2d.drawGrid();
+  }
+  
+  var canvas = this.graph((x,y)=>{
+    var n = 35;
+    var z = 0e1;
+    var c = x + y * 1e1;
+    while (z < 2 && n--) {
+      z=z**2+c;
+    }
+    return (n/30);
+  }, {canvas});
+  
+  canvas.canvas2d.drawGrid();
+  
+  document.body.appendChild(canvas);
+});
+</SCRIPT>

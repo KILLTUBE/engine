@@ -1,0 +1,328 @@
+<HEAD>
+  <TITLE>GAlculator</TITLE>
+  <link href="https://fonts.googleapis.com/css?family=Exo:500" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=0.6, maximum-scale=0.6, user-scalable=0"/>
+  <meta name="mobile-web-app-capable" content="yes">
+  <STYLE>
+  /* Calculator main body ******************************************************************/
+    .calcBody {
+      display        : flex;
+      flex-direction : column;
+      font-family    : Exo, sans-serif;
+      position       : fixed;
+      top            : 10px;
+      right          : 50px;
+      height         : 960px;
+      min-height     : 920px;
+      max-height     : 100%;
+      background     : rgb(250,245,240);
+      padding        : 5px;
+      padding-bottom : 10px;
+      border-radius  : 40px 40px 15px 15px;
+      box-shadow     : inset 0px -2px 3px 3px rgba(80,50,40,0.2),
+                       0px 2px 2px rgba(0,0,0,0.8),
+                       inset 0px -1px 1px rgba(255,255,255,0.5),
+                       inset 0px -2px 2px rgba(70,50,40,0.8),
+                       inset 0px -3px 2px rgba(90,50,40,0.3),
+                       4px 4px 32px rgba(0,0,0,0.5);
+    }
+
+  /* Numerical input and graphical display *************************************************/
+    .numInput {
+      position     : relative;
+      display      : block;
+      width        : calc(100% - 2px);
+      height       : 48px;
+      line-height  : 43px;
+      margin       : auto;
+      font-size    : 22pt;
+      overflow     : hidden;
+      text-align   : right;
+      padding-right: 9px;
+      box-sizing   : border-box;
+      background   : rgba(206,206,182,0.7);
+      border-radius: 15px;
+      border       : 1px solid rgba(255,255,255,0.7);
+      margin-bottom: 5px;
+      box-shadow   : inset 0px -3px 10px rgba(0,0,0,0.05),
+                     inset 1px 3px 9px rgba(0,0,0,0.3),
+                     inset 1px 1px 1px rgba(0,0,0,0.2),
+                     inset -1px -1px 1px rgba(0,0,0,0.1),
+                     inset 0px 2px 1px 2px rgba(0,0,0,0.1);
+    }
+
+  /* Calculator Buttons (group, buttons, colors, subscript labels) *************************/
+    .group { display:flex;     width:100%; }
+    .numButton {
+      position     : relative;
+      outline      : none;
+      width        : 70px;
+      flex-grow    : 1;
+      height       : 54px;
+      display      : block-inline;
+      text-align   : center; 
+      line-height  : 54px;
+      display      : inline-block;
+      font-size    : 20pt;
+      color        : rgba(0,0,0,0.65);
+      margin       : 2px;
+      background   : rgba(245,240,235,1);
+      box-shadow   : inset 0px -1px 2px 2px rgba(80,50,40,0.2),
+                     inset 0px 1px 0px rgba(0,0,0,0.2),
+                     inset 0px -1px 1px rgba(70,50,40,0.8),
+                     inset 0px -2px 1px rgba(90,50,40,0.3);
+      cursor       : pointer;
+    }
+    .noselect {
+      -webkit-user-select : none;
+      -moz-user-select    : none;
+      -ms-user-select     : none;
+      user-select         : none;
+    }
+    .numButton:focus { outline:none; }
+    .numButton:active:not(.disabled), .numButton.active:not(.disabled) { top:2px; }
+    .green { line-height:54px; background-color: rgba(240,255,220,1); }
+    .blue  { line-height:54px; background-color: rgba(230,220,250,1); }
+    .purple{ line-height:54px; background-color: rgba(250,220,250,1); }
+    .red   { line-height:54px; background-color: rgba(250,210,200,1); }
+    .mini {
+       position    : absolute;
+       bottom      : 2px;
+       right       : 5px;
+       font-size   : 45%;
+       line-height : 20px;
+       color       : rgba(0,0,0,0.5);
+    }
+    .disabled {
+      color          : #ccc;
+      pointer-events : none;
+      box-shadow     : none;
+      border         : 1px solid rgba(0,0,0,0.3);
+      box-sizing     : border-box;
+    }
+
+  /* Calculator History and help displays **************************************************/
+    .historypos {
+       position        : absolute;
+       top             : 0px;
+       left            : 2px;
+       right           : 2px;
+       bottom          : 5px;
+       display         : flex;
+       flex-direction  : column;
+       justify-content : flex-end;
+       overflow        : hidden;
+    }
+    .history {
+       position         : relative;
+       background-color : transparent;
+       min-height       : 0px;
+       color            : #222; 
+       padding          : 10px;
+       flex-grow        : 0;
+       min-width        : 0px;
+       top              : 10px;
+       left             : 0px;
+       text-align       : right;
+    }
+    .e {
+      position          : relative;
+      top               : -3px;
+      font-size         : 45%;
+    }
+    .help {
+      position          : absolute;
+      top               : 0px;
+      left              : 10px;
+    }
+    .history > .help { left:0px; }
+    .help .green  { background-color: rgba(240,255,220,1); } 
+    .help .red    { background-color: rgba(250,210,200,1); } 
+    .help .blue   { background-color: rgba(230,220,250,1); } 
+    .help .purple { background-color: rgba(250,220,250,1); } 
+    .help  i {
+      position     : relative;
+      user-select  : none;
+      outline      : none;
+      width        : 25px;
+      height       : 25px;
+      display      : block-inline;               
+      text-align   : center; 
+      line-height  : 25px;
+      display      : inline-block;
+      font-size    : 13pt;
+      opacity      : 0.8;
+      color        : rgba(0,0,0,0.65);
+      margin       : 2px;
+      font-family  : Exo;
+      font-style   : normal;
+      font-weight  : bold;
+      background   : rgba(240,230,220,1);
+      border-radius: 5px;
+      border       : 1px solid;
+    }
+
+  /* Current mode display top left of calculator *******************************************/
+    .title {
+      position    : absolute;
+      top         : 40px;
+      left        : 20px;
+      color       : #888;
+      font-size   : 16pt;
+      font-family : serif;
+    }
+
+  /* Class to render C R M outline letters for sets ****************************************/
+    .outline {
+      font-family         : serif;
+      -webkit-text-stroke : 1px #888;
+      -moz-text-stroke    : 1px #888;
+      -ms-text-stroke     : 1px #888;
+      text-stroke         : 1px #888;
+      color               : transparent;
+      font-style          : normal;
+    }
+    .green .outline, .help .outline {
+      -webkit-text-stroke : 1px #444;
+      -moz-text-stroke    : 1px #444;
+      -ms-text-stroke     : 1px #444;
+      text-stroke         : 1px #444;
+    }
+    
+  /* On small displays (mobile) only display the calculator. *******************************/
+    @media (max-width:800px) {
+      .help           { display:none; }
+      .calcBody .help { display:block; }
+      .calcBody { 
+        top           : 0px; 
+        position      : Relative; 
+        right         : 0px; 
+        box-shadow    : 0px 0px 0px black; 
+        border-radius : 0px; 
+        margin        : auto; 
+        height        : 100%; 
+        max-height    : 100%; 
+        width         : calc(100% - 10px);
+      }
+      html { height:100%; overflow:hidden; }
+      body { 
+        background-color : rgb(230,220,200); 
+        position         : fixed; 
+        top              : 0; 
+        left             : 0; 
+        display          : flex; 
+        flex-direction   : column; 
+        margin           : 0px; 
+        margin-bottom    : 10px; 
+        overflow         : hidden; 
+        height           : 100%; 
+        width            : 100%; 
+        max-height       : 100%; 
+        min-height       : 100%; 
+      }
+    }
+    @media (max-height:180px) {
+      .numButton {
+        height      : 44px;
+        line-height : 40px;
+      }
+    }
+  </STYLE>
+</HEAD>
+<BODY>
+  <!-- help section - only visible on desktop ---------------------------------------------->
+  <DIV CLASS="help">
+    <H4>The Galculator - powered by Ganja.js</H4>
+    The Galculator can be forked on <A HREF="https://github.com/enkimute/ganja.js">github</A><BR><BR>
+    It works great on your phone - full screen if you add it to your homescreen.<BR><BR>
+    <h4>Example in <SPAN CLASS='outline'>C</SPAN> :</H4>
+    <p>Calculate (3+2i)*(1+4i)</p>
+    <input type="button" value="show solution" onclick="this.style.display='none'; this.nextElementSibling.style.display='block'"/>
+    <ul style="display:none">
+      <LI><i class="green"><SPAN CLASS='outline'>C</SPAN></i>
+      <LI><i class="blue">(</i><i>3</i><i class="blue">+</i><i>2</i><i>e<sub>1</sub></i><i class="blue">)</i>
+      <LI><i class="blue">*</i>
+      <LI><i class="blue">(</i><i>1</i><i class="blue">+</i><i>4</i><i>e<sub>1</sub></i><i class="blue">)</i>
+      <LI><i class="red">=</i>
+      <LI>answer is -5+14e<sub>1</sub>
+    </ul>
+
+    <h4>Example in <span class="outline">D</span></h4>
+    Calculate the value of the function and first derivative at x=3<BR>
+    <BR>
+    f(x)=x<sup>3</sup>-2x<sup>2</sup>+3
+    <BR><BR>
+    <input type="button" value="show solution" onclick="this.style.display='none'; this.nextElementSibling.style.display='block'"/>
+    <ul style="display:none">
+      <LI><i class="green"><SPAN CLASS='outline'>D</SPAN></i>
+      <LI><i>3</i><i class="blue">+</i><i>e<sub>0</sub></i>
+      <LI><i class="purple">ST</i><i class="purple">x1</i>
+      <LI><i class="green">Cl</i><i class="purple">x1</i><i class="blue">*</i><i class="purple">x1</i><i class="blue">*</i><i class="purple">x1</i><i class="blue">-</i><i>2</i><i class="blue">*</i><i class="purple">x1</i><i class="blue">*</i><i class="purple">x1</i><i class="blue">+</i><i>3</i>
+      <LI><i class="red">=</i>
+      <LI>answer is f(3)=12 and f'(3)=15
+    </UL>
+
+    <h4>Example in spacetime <span class="outline">M</span></h4>
+    You see two simultaneous lightning strikes in 10 microseconds, one where you are, one 20 km in the x-direction.<BR>
+    Are these events simultaneous for a spaceship flying at 0.5c in the x-direction? (given : atanh(0.5)=0.5493)
+    <BR><BR>
+    <input type="button" value="show solution" onclick="this.style.display='none'; this.nextElementSibling.style.display='block'"/>
+    <ul style="display:none">
+      <LI><i class="green"><SPAN CLASS="outline">M</SPAN></i>
+      <LI><i>0</i><i>.</i><i>0</i><i>0</i><i>0</i><i>0</i><i>1</i><i>e<sub>1</sub></i>
+      <LI><i class="purple">ST</i><i class="purple">x1</i>
+      <LI><i class="blue">+</i><i>2</i><i>0</i><i>e<sub>2</sub></i><i class="blue">/</i><i>3</i><i>0</i><i>0</i><i>0</i><i>0</i><i>0</i>
+      <LI><i class="purple">ST</i><i class="purple">x2</i>
+      <LI><i class="green">Cl</i><i class="blue">(</i><I>0</i><I>.</i><I>5</i><I>4</i><I>9</i><I>3</i><i class="blue">*</i><i>.</i><i>5</i><i>e<sub>1</sub></i><i>e<sub>2</sub></i><i class="blue">)</i><i class="blue" STYLE="width:50px">Exp</i>
+      <LI><i class="purple">ST</i><i class="purple">x3</i>
+      <LI><i class="green">Cl</i><i class="purple">x3</i><i class="blue">*</i><i class="purple">x1</i><i class="blue">*</i><i class="purple">x3</i><i class="blue">x&#772;</i>
+      <LI><i class="purple">ST</i><i class="purple">x4</i>
+      <LI><i class="green">Cl</i><i class="purple">x3</i><i class="blue">*</i><i class="purple">x2</i><i class="blue">*</i><i class="purple">x3</i><i class="blue">x&#772;</i>
+      <LI><i class="purple">ST</i><i class="purple">x5</i>
+      <LI>answer is strikes happen at (X4 : 11ms) and (x5 : -26ms) - not the same time.
+    </UL>
+    
+    <h4>Example in PGA 2D (2,0,1)</H4>
+    <p>Solve the system of equations :
+       <LI>x+y-0.5=0
+       <LI>2x-1y=0
+    </p>
+    <input type="button" value="show solution" onclick="this.style.display='none'; this.nextElementSibling.style.display='block'"/>
+    <ul style="display:none">
+      <LI><i class="green" STYLE="width:60px">P2D</i>
+      <LI><i>e<sub>1</sub></i><i class="blue">+</i><i>e<sub>2</sub></i><i class="blue">-</i><i>0</i><i>.</i><i>5</i><i>e<sub>0</sub></i>
+      <LI><i class="purple">ST</i><i class="purple">x1</i>
+      <LI><i class="green">Cl</i><i>2</i><i>e<sub>1</sub></i><i class="blue">-</i><i>e<sub>2</sub></i>
+      <LI><i class="purple">ST</i><i class="purple">x2</i>
+      <LI><i class="green">Cl</i><i class="purple">x1</i><i class="blue">&#x2227;</i><i class="purple">x2</i>
+      <LI><i class="purple">ST</i><i class="purple">x3</i>
+      <LI><i class="green">Cl</i><i class="purple">x3</i><i class="blue">/</i><i class="blue">(</i><i class="blue">-</i><i>E<sub>0</sub></i><i class="blue">&#x25cf;</i><i class="purple">x3</i><i class="blue">)</i>
+      <LI><i class="red">=</i>
+      <LI>answer is x=0.166666 and y=0.3333333 
+    </UL>
+  </DIV>
+
+  <!-- Calculator main body and layout.  -------------------------------------------------->
+
+  <DIV CLASS="calcBody" ID="calcBody">
+    <CENTER>Enki's GAlculator</CENTER>
+    <DIV STYLE="position:relative; flex-grow:1; display:flex; flex-direction:column; flex-grow:1">
+      <DIV CLASS="graph numInput" ID="graph" STYLE="flex-grow:1"></DIV>
+      <DIV CLASS="historypos">
+        <DIV CLASS="history" ID="hist"></DIV>
+      </DIV>
+    </DIV>
+    <DIV CLASS="title" ID="title"><SPAN CLASS='outline'>R</SPAN></DIV>
+    <DIV CLASS="numInput" ID="screen">0</DIV>
+  </DIV>
+
+  <script type="module">
+    import Galculator from "./galculator.js";
+    var galculator = new Galculator();
+    galculator.hello();
+    Object.assign(window, {
+      Galculator,
+      galculator
+    })
+  </SCRIPT>
+</BODY>

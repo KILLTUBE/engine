@@ -1,0 +1,15 @@
+<script type="module">
+import Algebra from "../src/ganja/index.js";
+document.body.innerHTML = "";
+// Create a complex Algebra.
+Algebra(0,1,()=>{
+  document.body.innerHTML = "";
+  var canvas = this.graph((x, y)=>{
+    // parabola at 0.2
+    return y > x*x + 0.2;
+  }, {
+      grid: true
+  });
+  document.body.appendChild(canvas);
+});
+</script>
